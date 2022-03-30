@@ -27,6 +27,8 @@ const main = async () => {
 
   redisClient.connect().catch(console.error);
 
+  app.set('trust proxy', !__prod__);
+
   app.use(
     session({
       name: 'qid',
@@ -34,15 +36,15 @@ const main = async () => {
         client: redisClient as any,
         disableTouch: true,
       }),
+      saveUninitialized: false,
+      secret: 'skdfhalkhflkabdsfkl',
+      resave: false,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
         httpOnly: true,
-        sameSite: 'lax',
-        secure: __prod__, //cookie only works in https
+        sameSite: 'none',
+        secure: !__prod__, //cookie only works in https
       },
-      saveUninitialized: true,
-      secret: 'skdfhalkhflkabdsfkl',
-      resave: false,
     })
   );
 

@@ -41,20 +41,21 @@ class UserResponse {
 export class UserResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: MyContext) {
-    console.log(req.cookies);
-    
-    if (!req.cookies) {
+    if (!req.session.userId) {
+      console.log(req.session.userId);
+
       return null;
     }
 
-    const user = await em.findOne(User, { id: req.cookies.userId });
+    //@ts-ignore
+    const user = await em.findOne(User, { id: req.session.userId });
     return user;
   }
 
   @Mutation(() => UserResponse)
   async register(
     @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     if (options.username.length <= 2) {
       return {
@@ -101,6 +102,11 @@ export class UserResolver {
       console.log('message: ', error.message);
     }
 
+    // store user id session
+    // this will set a cookie on the user
+    // keep them logged in
+    req.session.userId = user.id;
+
     return { user };
   }
 
@@ -122,8 +128,8 @@ export class UserResolver {
       };
     }
 
-    req.session.save();
-    
+    req.session.userId = user.id;
+
     return { user };
   }
 }
