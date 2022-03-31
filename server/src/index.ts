@@ -8,7 +8,8 @@ import { buildSchema } from 'type-graphql';
 import { HelloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
-import { MyContext } from './types';
+
+import cors from 'cors';
 
 import { createClient } from 'redis';
 import session from 'express-session';
@@ -28,6 +29,13 @@ const main = async () => {
   redisClient.connect().catch(console.error);
 
   app.set('trust proxy', !__prod__);
+  // app.use(
+  //   cors({
+  //     origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+  //     credentials: true,
+  //   })
+  // );
+  
 
   app.use(
     session({
@@ -53,17 +61,23 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
 
   await apolloServer.start();
 
+  //when the cookie is not register in the graphql server use this option:
+  // cors: {
+  //   origin: 'https://studio.apollographql.com',
+  //   credentials: true,
+  // },
+
   apolloServer.applyMiddleware({
     app,
     cors: {
-      origin: 'https://studio.apollographql.com',
-      credentials: true,
-    },
+    origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+    credentials: true,
+  },
   });
 
   app.listen(4000, () => {
