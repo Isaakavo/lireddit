@@ -29,13 +29,13 @@ const main = async () => {
   redisClient.connect().catch(console.error);
 
   app.set('trust proxy', !__prod__);
+  // app.set('x-forwarded-proto', 'https');
   // app.use(
   //   cors({
   //     origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
   //     credentials: true,
   //   })
   // );
-  
 
   app.use(
     session({
@@ -49,9 +49,9 @@ const main = async () => {
       resave: false,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
-        httpOnly: true,
-        sameSite: 'none',
-        secure: !__prod__, //cookie only works in https
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: __prod__, //cookie only works in https
       },
     })
   );
@@ -75,9 +75,9 @@ const main = async () => {
   apolloServer.applyMiddleware({
     app,
     cors: {
-    origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
-    credentials: true,
-  },
+      origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+      credentials: true,
+    },
   });
 
   app.listen(4000, () => {
