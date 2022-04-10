@@ -3,7 +3,7 @@ import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import express from 'express';
 import session from 'express-session';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { COOKIE_NAME, __prod__ } from './constants';
@@ -21,11 +21,9 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = createClient({
-    legacyMode: true,
-  });
+  const redis = new Redis();
 
-  redisClient.connect().catch(console.error);
+  // redis.connect().catch(console.error);
 
   app.set('trust proxy', !__prod__);
   // app.set('x-forwarded-proto', 'https');
@@ -40,7 +38,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient as any,
+        client: redis,
         disableTouch: true,
       }),
       saveUninitialized: false,
@@ -60,7 +58,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
   });
 
   await apolloServer.start();
