@@ -12,8 +12,6 @@ import { HelloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 
-
-
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
   orm.getMigrator().up();
@@ -55,7 +53,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver, UserResolver],
+      resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
