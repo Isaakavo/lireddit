@@ -1,4 +1,3 @@
-import { MikroORM } from '@mikro-orm/core';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import express from 'express';
@@ -7,14 +6,19 @@ import Redis from 'ioredis';
 import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { COOKIE_NAME, __prod__ } from './constants';
-import microConfig from './mikro-orm.config';
-import { HelloResolver } from './resolvers/hello';
+import { conn } from './data-source';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 
 const main = async () => {
-  const orm = await MikroORM.init(microConfig);
-  orm.getMigrator().up();
+  conn
+    .initialize()
+    .then(() => {
+      console.log('Data sources has been initialized!');
+    })
+    .catch((err) => {
+      console.log('Error during data source initialization!', err);
+    });
 
   const app = express();
 
@@ -56,7 +60,7 @@ const main = async () => {
       resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
   await apolloServer.start();
