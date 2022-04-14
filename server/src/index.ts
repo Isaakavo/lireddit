@@ -11,7 +11,7 @@ import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 
 const main = async () => {
-  conn
+  await conn
     .initialize()
     .then(() => {
       console.log('Data sources has been initialized!');
@@ -25,7 +25,7 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redis = new Redis();
 
-  // redis.connect().catch(console.error);
+  // await redis.connect().catch(console.error);
 
   app.set('trust proxy', !__prod__);
   // app.set('x-forwarded-proto', 'https');
@@ -49,8 +49,8 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
         httpOnly: false,
-        sameSite: 'lax',
-        secure: __prod__, //cookie only works in https
+        sameSite: 'none',
+        secure: !__prod__, //cookie only works in https
       },
     })
   );

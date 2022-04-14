@@ -23,7 +23,11 @@ export const Login: React.FC = () => {
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            router.push('/');
+            if (typeof router.query.next === 'string') {
+              router.push(router.query.next);
+            } else {
+              router.push('/');
+            }
           }
         }}
       >
@@ -42,9 +46,9 @@ export const Login: React.FC = () => {
                 type='password'
               />
             </Box>
-            <Flex mt={2} >
+            <Flex mt={2}>
               <NextLink href='/forgot-password'>
-                <Link ml='auto' >forgot password? </Link>
+                <Link ml='auto'>forgot password? </Link>
               </NextLink>
             </Flex>
             <Button mt={4} type='submit' isLoading={isSubmitting} color='teal'>

@@ -7,7 +7,7 @@ import {
   Mutation,
   ObjectType,
   Query,
-  Resolver
+  Resolver,
 } from 'type-graphql';
 import { v4 } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
@@ -204,7 +204,7 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-
+    
     return { user };
   }
 

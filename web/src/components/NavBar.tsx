@@ -28,7 +28,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     );
   } else {
     body = (
-      <Flex>
+      <Flex >
         <Box mr={2}>{data.me.username}</Box>
         <Button
           variant='link'
@@ -44,7 +44,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   }
 
   return (
-    <Flex bg='tomato' p={4}>
+    <Flex  zIndex={1} position='sticky' top={0} bg='tomato' p={4}>
       <Box ml={'auto'}>{body}</Box>
     </Flex>
   );
