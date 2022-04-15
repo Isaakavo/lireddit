@@ -118,14 +118,11 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
-    if (!req.session.userId) {
-      console.log(req.session.userId);
-
+    const userId = req.session.userId;
+    if (!userId) {
       return null;
     }
-
-    //@ts-ignore
-    return (user = User.findOne(req.session.userId));
+    return User.findOne({ where: { id: userId } });
   }
 
   @Mutation(() => UserResponse)
@@ -204,7 +201,7 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-    
+
     return { user };
   }
 

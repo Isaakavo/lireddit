@@ -2,11 +2,11 @@ import { Link } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
 import { Layout } from '../components/Layout';
-import { usePOstsQuery } from '../generated/graphql';
+import { usePostsQuery } from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
 const Index = () => {
-  const [{ data }] = usePOstsQuery();
+  const [{ data }] = usePostsQuery({ variables: { limit: 10 } });
   return (
     <Layout>
       <NextLink href='/create-post'>

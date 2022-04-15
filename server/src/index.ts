@@ -20,6 +20,8 @@ const main = async () => {
       console.log('Error during data source initialization!', err);
     });
 
+  // await conn.runMigrations();
+
   const app = express();
 
   const RedisStore = connectRedis(session);

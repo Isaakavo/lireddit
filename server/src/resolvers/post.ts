@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -11,6 +12,7 @@ import {
 } from 'type-graphql';
 import { Post } from '../entities/Posts';
 import { isAuth } from '../middleware/isAuth';
+import { conn } from '../data-source';
 
 @InputType()
 class PostInput {
@@ -23,8 +25,22 @@ class PostInput {
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  posts(): Promise<Post[]> {
-    return Post.find();
+  async posts(
+    @Arg('limit', () => Int) limit: number,
+    @Arg('cursor', () => String, { nullable: true }) cursor: string | null
+  ): Promise<Post[]> {
+    const realLimit = Math.min(50, limit);
+    const qb = conn
+      .getRepository(Post)
+      .createQueryBuilder('p')
+      .orderBy('"createdAt"', 'DESC')
+      .take(realLimit);
+
+    if (cursor) {
+      qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
+    }
+
+    return qb.getMany();
   }
 
   @Query(() => Post, { nullable: true })
@@ -42,8 +58,6 @@ export class PostResolver {
     @Arg('input') input: PostInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
-    console.log(req.session.userId);
-    
     return Post.create({ ...input, creatorId: req.session.userId }).save();
   }
 
