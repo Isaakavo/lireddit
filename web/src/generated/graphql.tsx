@@ -181,7 +181,7 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: nu
 
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
-  cursor: Scalars['String'];
+  cursor?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -290,7 +290,7 @@ export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, '
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String!) {
+    query Posts($limit: Int!, $cursor: String) {
   posts(limit: $limit, cursor: $cursor) {
     id
     createdAt
