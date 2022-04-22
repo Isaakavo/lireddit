@@ -38,7 +38,19 @@ class PaginatedPosts {
 export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
-    return root.text.slice(0, 50);
+    const { text } = root;
+    let modifiedText = '';
+    if (text.length > 150) {
+      for (let i = 150; i < text.length; i++) {
+        const element = text[i];
+        if (element === ' ') {
+          modifiedText = text.slice(0, i) + '...';
+          return modifiedText
+        }
+      }
+    }
+
+    return text;
   }
 
   @Query(() => PaginatedPosts)
@@ -47,7 +59,7 @@ export class PostResolver {
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
-    const realLimitPlusOne = realLimit + 1
+    const realLimitPlusOne = realLimit + 1;
     const qb = conn
       .getRepository(Post)
       .createQueryBuilder('p')
@@ -60,7 +72,10 @@ export class PostResolver {
 
     const posts = await qb.getMany();
 
-    return { posts: posts.slice(0, realLimit), hasMore: posts.length === realLimitPlusOne };
+    return {
+      posts: posts.slice(0, realLimit),
+      hasMore: posts.length === realLimitPlusOne,
+    };
   }
 
   @Query(() => Post, { nullable: true })
