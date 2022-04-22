@@ -7,6 +7,7 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { COOKIE_NAME, __prod__ } from './constants';
 import { conn } from './data-source';
+import { Post } from './entities/Posts';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 
@@ -20,7 +21,9 @@ const main = async () => {
       console.log('Error during data source initialization!', err);
     });
 
-  // await conn.runMigrations();
+  await conn.runMigrations();
+  // await conn.undoLastMigration()
+  // await Post.delete({})
 
   const app = express();
 
