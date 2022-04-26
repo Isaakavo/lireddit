@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { Post } from "./entities/Posts";
 import { User } from "./entities/User";
 import path from "path";
+import { Updoot } from "./entities/Updoot";
 
 export const conn = new DataSource({
   type: 'postgres',
@@ -11,7 +12,7 @@ export const conn = new DataSource({
   password: 'Weisses2',
   logging: true,
   synchronize: true,
-  entities: [Post, User],
+  entities: [Post, User, Updoot],
   migrations: [path.join(__dirname, "./migrations/*.{js,ts}")],
   
 })

@@ -9,15 +9,14 @@ import {
 } from 'typeorm';
 import { ObjectType, Field } from 'type-graphql';
 import { Post } from './Posts';
+import { Updoot } from './Updoot';
 
 @ObjectType()
-@Entity() 
+@Entity()
 export class User extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
-
-  
 
   @Field()
   @Column({ unique: true })
@@ -30,12 +29,15 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @OneToMany(() => Post, post => post.creator)
-  posts: Post[]
+  @OneToMany(() => Post, (post) => post.creator)
+  posts: Post[];
+
+  @OneToMany(() => Updoot, (updoot) => updoot.user)
+  updoots: Updoot[];
 
   @Field(() => String)
   @CreateDateColumn()
-  createdAt: Date
+  createdAt: Date;
 
   @Field(() => String)
   @UpdateDateColumn()
