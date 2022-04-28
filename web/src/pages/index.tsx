@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -15,7 +15,7 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { UpdootSection } from '../components/UpdootSection';
-import { usePostsQuery } from '../generated/graphql';
+import { useDeletePostMutation, usePostsQuery } from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
 const Index = () => {
@@ -24,6 +24,8 @@ const Index = () => {
     cursor: null as null | string,
   });
   const [{ data, fetching }] = usePostsQuery({ variables });
+
+  const [, deletePost] = useDeletePostMutation();
 
   if (!fetching && !data) {
     return <div>you query failed for some reason :C</div>;
@@ -34,17 +36,28 @@ const Index = () => {
         <div>Loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data!.posts.posts.map((x) => (
+          {data!.posts.posts.map((x) => !x ? null : (
             <Flex key={x.id} p={5} shadow='md' borderWidth='1px'>
               <UpdootSection post={x} />
-              <Box>
+              <Box flex={1}>
                 <NextLink href='/post/[id]' as={`/post/${x.id}`}>
                   <Link>
                     <Heading fontSize='xl'>{x.title}</Heading>
                   </Link>
                 </NextLink>
                 <Text>Posted by {x.creator.username}</Text>
-                <Text mt={4}>{x.textSnippet}</Text>
+                <Flex>
+                  <Text mt={4}>{x.textSnippet}</Text>
+                  <IconButton
+                    ml='auto'
+                    icon={<DeleteIcon />}
+                    aria-label='delete post'
+                    color='red'
+                    onClick={() => {
+                      deletePost({ id: x.id });
+                    }}
+                  />
+                </Flex>
               </Box>
             </Flex>
           ))}
