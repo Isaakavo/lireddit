@@ -1,4 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from '@chakra-ui/icons';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DeleteIcon,
+  EditIcon,
+} from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -15,7 +20,11 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { UpdootSection } from '../components/UpdootSection';
-import { useDeletePostMutation, usePostsQuery } from '../generated/graphql';
+import {
+  useDeletePostMutation,
+  useMeQuery,
+  usePostsQuery,
+} from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
 const Index = () => {
@@ -23,6 +32,7 @@ const Index = () => {
     limit: 15,
     cursor: null as null | string,
   });
+  const [{ data: meData }] = useMeQuery();
   const [{ data, fetching }] = usePostsQuery({ variables });
 
   const [, deletePost] = useDeletePostMutation();
@@ -36,31 +46,49 @@ const Index = () => {
         <div>Loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data!.posts.posts.map((x) => !x ? null : (
-            <Flex key={x.id} p={5} shadow='md' borderWidth='1px'>
-              <UpdootSection post={x} />
-              <Box flex={1}>
-                <NextLink href='/post/[id]' as={`/post/${x.id}`}>
-                  <Link>
-                    <Heading fontSize='xl'>{x.title}</Heading>
-                  </Link>
-                </NextLink>
-                <Text>Posted by {x.creator.username}</Text>
-                <Flex>
-                  <Text mt={4}>{x.textSnippet}</Text>
-                  <IconButton
-                    ml='auto'
-                    icon={<DeleteIcon />}
-                    aria-label='delete post'
-                    color='red'
-                    onClick={() => {
-                      deletePost({ id: x.id });
-                    }}
-                  />
-                </Flex>
-              </Box>
-            </Flex>
-          ))}
+          {data!.posts.posts.map((x) =>
+            !x ? null : (
+              <Flex key={x.id} p={5} shadow='md' borderWidth='1px'>
+                <UpdootSection post={x} />
+                <Box flex={1}>
+                  <NextLink href='/post/[id]' as={`/post/${x.id}`}>
+                    <Link>
+                      <Heading fontSize='xl'>{x.title}</Heading>
+                    </Link>
+                  </NextLink>
+                  <Text>Posted by {x.creator.username}</Text>
+                  <Flex>
+                    <Text mt={4}>{x.textSnippet}</Text>
+                    {meData?.me?.id !== x.creator.id ? null : (
+                      <Box ml='auto'>
+                        <NextLink
+                          href='/post/edit/[id]'
+                          as={`post/edit/${x.id}`}
+                        >
+                          <IconButton
+                            as={Link}
+                            ml='auto'
+                            mr={4}
+                            icon={<EditIcon />}
+                            aria-label='edit post'
+                          />
+                        </NextLink>
+                        <IconButton
+                          ml='auto'
+                          icon={<DeleteIcon />}
+                          aria-label='delete post'
+                          color='red'
+                          onClick={() => {
+                            deletePost({ id: x.id });
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </Flex>
+                </Box>
+              </Flex>
+            )
+          )}
         </Stack>
       )}
       {data && data.posts.hasMore ? (
